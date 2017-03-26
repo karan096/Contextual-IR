@@ -33,7 +33,7 @@ import java.util.Date;
 
 public class IndexFiles {
   
-  private IndexFiles() {}
+  public IndexFiles() {}
 
   /** Index all text files under a directory. */
  public static void main(String[] args) {

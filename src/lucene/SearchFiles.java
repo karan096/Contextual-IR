@@ -2,13 +2,16 @@ package lucene;
 
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
+
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -24,7 +27,7 @@ import org.apache.lucene.store.FSDirectory;
 
 public class SearchFiles {
 
-  private SearchFiles() {}
+  public SearchFiles() {}
 
   public static void main(String[] args) throws Exception {
     String usage =
@@ -33,35 +36,34 @@ public class SearchFiles {
       System.out.println(usage);
       System.exit(0);
     }
+  }
+  public String[] search(String s)throws Exception{
+	  String index = "/home/karan/workspace/Lucene/index";
+	    String field = "contents";
+	    String queries = null;
+	    boolean raw = false;
 
-    String index = "/home/karan/workspace/Lucene/index";
-    String field = "contents";
-    String queries = null;
-    int repeat = 0;
-    boolean raw = false;
-    
-    Scanner sc=new Scanner(System.in);
-    String queryString = sc.next();
-    sc.close();
-    
-    int hitsPerPage = 100;
-    IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
-    IndexSearcher searcher = new IndexSearcher(reader);
-    Analyzer analyzer = new StandardAnalyzer();
+	    String queryString =s;
+	
+	    
+	    int hitsPerPage = 100;
+	    IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
+	    IndexSearcher searcher = new IndexSearcher(reader);
+	    Analyzer analyzer = new StandardAnalyzer();
 
-    BufferedReader in = null;
-    QueryParser parser = new QueryParser(field, analyzer);
+	    BufferedReader in = null;
+	    QueryParser parser = new QueryParser(field, analyzer);
 
-      Query query = parser.parse(queryString);
-      
-      System.out.println("Searching for: " + query.toString(field));
-      searcher.search(query, null, 100);
-      doSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null);    
-      reader.close();
+	      Query query = parser.parse(queryString);
+	      
+	      System.out.println("Searching for: " + query.toString(field));
+	      searcher.search(query, null, 100);
+	      String[] li=doSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null);    
+	      reader.close();
+	      return li;
   }
 
-
-  public static void doSearch(BufferedReader in, IndexSearcher searcher, Query query, 
+  public String[] doSearch(BufferedReader in, IndexSearcher searcher, Query query, 
                                      int hitsPerPage, boolean raw, boolean interactive) throws IOException {
  
     TopDocs results = searcher.search(query, 5 * hitsPerPage);
@@ -73,11 +75,28 @@ public class SearchFiles {
     int start = 0;
     int end = Math.min(numTotalHits, hitsPerPage);
       
+    
+    
+    
+    
+    String[] li=new String[1000];                     //will change
+    
+    
+    
+    
       for (int i = start; i < end; i++) {
         Document doc = searcher.doc(hits[i].doc);
        String path = doc.get("path");
+       
+       File f=new File(path);
+       System.out.println(f.getName());
+       
+      
+       
         if (path != null) {
-          System.out.println((i+1) + ". " + path);
+            System.out.println((i+1) + ". " + path);        	
+        	        	
+        	li[i]=path;
           String title = doc.get("title");
           if (title != null) {
             System.out.println("   Title: " + doc.get("title"));
@@ -87,5 +106,6 @@ public class SearchFiles {
         }
                   
       }
-    }
+      return li;
   }
+}
