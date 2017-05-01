@@ -1,6 +1,7 @@
 package com.naivedya.ir_system;
 
 
+import javafx.util.Pair;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -36,7 +37,7 @@ public class SearchFiles {
         }
     }
 
-    public List<String> search(String s) throws Exception {
+    public List<Pair <String, String> > search(String s) throws Exception {
         String index = "/home/naivedya/IdeaProjects/course-ideas/src/main/resources/public/index";
         String field = "contents";
         String queries = null;
@@ -57,13 +58,13 @@ public class SearchFiles {
 
         System.out.println("Searching for: " + query.toString(field));
         searcher.search(query, null, 100);
-        List<String> li = doSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null,
+        List< Pair <String, String> > li = doSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null,
                 reader, analyzer);
         reader.close();
         return li;
     }
 
-    public List<String> doSearch(BufferedReader in, IndexSearcher searcher, Query query,
+    public List<Pair <String, String> > doSearch(BufferedReader in, IndexSearcher searcher, Query query,
                                  int hitsPerPage, boolean raw, boolean interactive, IndexReader reader, Analyzer
                                          analyzer) throws IOException {
         TopDocs results = searcher.search(query, 5 * hitsPerPage);
@@ -75,7 +76,7 @@ public class SearchFiles {
 
         int start = 0;
         int end = Math.min(numTotalHits, hitsPerPage);
-        List<String> li = new ArrayList<>();
+        List<Pair <String, String>> li = new ArrayList<>();
         for (int i = start; i < end; i++) {
             int id = hits[i].doc;
             Document doc = searcher.doc(id);
@@ -83,6 +84,7 @@ public class SearchFiles {
 
             File f = new File(path);
             System.out.println(f.getName());
+            String context = "";
             try{
                 String text = doc.get("contents");
 
@@ -95,13 +97,13 @@ public class SearchFiles {
                 }
                 System.out.println(count_query);
                 */
-
                 TokenStream tokenStream = TokenSources.getAnyTokenStream(reader, id, "contents", analyzer);
                 TextFragment[] frag = highlighter.getBestTextFragments(tokenStream, text, false, 4);
-                for (int j = 0; j < frag.length; j++) {
-                    if ((frag[j].getScore() > 0)) {
-                        System.out.println(frag[j].toString());
+                for (TextFragment aFrag : frag) {
+                    if ((aFrag.getScore() > 0)) {
+                        System.out.println(aFrag.toString());
                         System.out.println("------------------------------------------------------");
+                        context = context + aFrag.toString() + "<br><br>";
                     }
                 }
 
@@ -113,7 +115,7 @@ public class SearchFiles {
                 //System.out.println((i + 1) + ". " + path);
                 int ind = path.indexOf("testdata");
                 path = path.substring(ind);
-                li.add(path);
+                li.add(new Pair(path, context));
                 String title = doc.get("title");
                 if (title != null) {
                     System.out.println("   Title: " + doc.get("title"));

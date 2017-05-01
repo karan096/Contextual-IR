@@ -1,4 +1,5 @@
 package com.naivedya.ir_system;
+import javafx.util.Pair;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -16,6 +17,8 @@ import static spark.Spark.*;
 public class Search {
     public static void main(String[] args) {
         staticFileLocation("/public");
+        get("/hello", (req, res) -> "Hello World");
+
         get("/", (req, res) -> {
             return new ModelAndView(null, "home.hbs");
         }, new HandlebarsTemplateEngine());
@@ -24,10 +27,17 @@ public class Search {
             String query = req.queryParams("query");
             System.out.println(query);
             SearchFiles sc=new SearchFiles();
-            List<String> results=sc.search(query);
+            MySpellChecker spellChecker = new MySpellChecker("/home/naivedya/IdeaProjects/ir_system/src/main/resources/public/dictionary/corncob_lowercase.txt");
+            String correction = spellChecker.doCorrection(query);
+            if(query.equalsIgnoreCase(correction))
+                correction = "";
+            List<Pair<String, String>> results=sc.search(query);
             Map<String, Object> model = new HashMap<>();
+            model.put("correction", correction);
             model.put("results", results);
-            return new ModelAndView(model, "results.hbs");
+            model.put("count", results.size());
+            model.put("query", query);
+            return new ModelAndView(model, "results_styled.hbs");
         }, new HandlebarsTemplateEngine());
 
     }
