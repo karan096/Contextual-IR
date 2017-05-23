@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Contextual IR</title>
+    <script   src="https://code.jquery.com/jquery-3.2.1.min.js"   integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="   crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/results_style.css"  type="text/css" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="css/nav_bar.css"  type="text/css" >
+
+    <!-- JAVASCRIPT to clear search text when the field is clicked -->
+    <script type="text/javascript">
+        window.onload = function(){
+            //Get submit button
+            var submitbutton = document.getElementById("tfq");
+            //Add listener to submit button
+            if(submitbutton.addEventListener){
+                submitbutton.addEventListener("click", function() {
+                    if (submitbutton.value == 'Search'){//Customize this text string to whatever you want
+                        submitbutton.value = '';
+                    }
+                });
+            }
+        }
+                function submitform(text)
+                {
+                    document.getElementById("inp_hidden").setAttribute("value", text);
+                    document.forms["myform"].submit();
+                }
+    </script>
+
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+</head>
+
+<body>
+    <form id="myform" method="post" action="/Search">
+        <input id = "inp_hidden" type='hidden' name='query'>
+    </form>
+        <div class="container">
+        <div class="page-header">
+            <h1>Contextual IR System
+                <small>a lucene powered search engine...</small>
+            </h1>
+            <div id="tfheader">
+                <form id="tfnewsearch" method="post" action="/Search">
+                    <input type="text" id="tfq" class="tftextinput2" name="query" size="125" maxlength="120"
+                           placeholder="Search">
+                    <input type="submit" value="Search" class="tfbutton2">
+                    <input id = "location_hidden" type='hidden' name='location'>
+                    <div class="tfclear"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+
+        <hgroup class="mb20">
+            <h1>Search Results</h1>
+            <h2 class="lead"><strong class="text-danger">{{ count }}</strong> results were found for the query
+                <strong
+                    class="text-danger"> "{{ query }}" </strong></h2>
+        </hgroup>
+
+        {{#if correction}}
+        <hgroup class="mb20">
+
+            <h3>Did you mean <strong class="text-danger"><a href='javascript: submitform("{{ correction }}")'>{{ correction }}</a></strong>?</h3>
+        </hgroup>
+        {{/if}}
+
+        {{#each results}}
+
+        <section class="col-xs-12 col-sm-6 col-md-12">
+            <article class="search-result row">
+
+                <div class="col-xs-12 col-sm-12 col-md-11 excerpet">
+                    <div class="w3-container">
+                        <div class="w3-panel w3-card-4">
+                            <h3><a href="{{ this.key }}" title="">{{ this.key }}</a></h3>
+                            <p>{{{ this.value }}}</p>
+                        </div>
+                    </div>
+                </div>
+                <span class="clearfix borda"></span>
+            </article>
+        </section>
+        {{/each}}
+
+    {{#if size}}
+    <hgroup class="mb20">
+        <h1>Similar Searches: </h1>
+        {{#each synonyms}}
+            <p>
+                <h5><strong class="text-danger"><a href="javascript: submitform('{{ this }}')">{{ this }}</a></strong></h5>
+        {{/each}}
+    </hgroup>
+    {{/if}}
+
+    </div>
+    <script type="text/javascript" src="js/location.js">
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Search Engine</title>
+</head>
+<body>
+<ul>
+    {{#each results}}
+        <li><a href="{{ this.key }}"> {{ this.key }} </a></li>
+        <p>{{{ this.value }}}</p>
+    {{/each}}
+</ul>
+</body>
+</html>
